@@ -136,29 +136,25 @@ def main():
         yaw = yaw%(2*pi)
         pitch = max(-pi,min(pi,pitch))
         # start with default direction
-        vX, vY, vZ = vecX,vecY,vecZ
+        cameraX, cameraY, cameraZ = vecX,vecY,vecZ
         # translate over yaw
-        vX = (vX*cos(yaw)) +(vZ*sin(yaw))
-        vZ = (vX*(-sin(yaw))) +(vZ*cos(yaw))
+        cameraX = ((cameraX*cos(yaw)) +(cameraZ*sin(yaw)))
+        cameraZ = ((cameraX*(-sin(yaw))) +(cameraZ*cos(yaw)))
         # translate over pitch
-        vY = (vY*cos(pitch)) +(vZ*sin(pitch))
-        vZ = (vY*(-sin(pitch))) +(vZ*cos(pitch))
-
-        cameraX = vX.normalized()
-        cameraY = vY.normalized()
-        cameraZ = vZ.normalized()
+        cameraY = ((cameraY*cos(pitch)) +(cameraZ*sin(pitch)))
+        cameraZ = ((cameraY*(-sin(pitch))) +(cameraZ*cos(pitch)))
 
         if key_up|key_down|key_left|key_right|key_w|key_s|key_a|key_d:
             block_size = 64
             frames_since_last_key_press = 0
         else:
             frames_since_last_key_press +=1
-            if 32*frames_since_last_key_press*(block_size*block_size) > width*height:
+            if 128*frames_since_last_key_press*(block_size*block_size) > width*height:
                 block_size = max(1,block_size//2)
                 frames_since_last_key_press = 0
 
         # screen.fill(pygame.Color(0,0,0, 255))
-        for _ in range(128):
+        for _ in range(256):
             n = (n+1)%(width*height)
             # m = (n*93703)%(width*height)
             m = (n*(width-17)*(height-17))%(width*height)
@@ -170,7 +166,7 @@ def main():
             p = cameraO + cameraX * (2 * x_ratio - 1.0) * screen_ratio - \
                 cameraY * (2 * y_ratio - 1.0) + cameraZ * 2
             d = (p - cameraO).normalized()
-            r,g,b = vec2rgb(raytrace(world, sun, cameraO, d))
+            r,g,b = vec2rgb(raytrace(world, sun, cameraO, d,1 if block_size>32 else 0))
 
             pygame.draw.rect(screen, pygame.Color(r,g,b, 255), (x,y,int(block_size),int(block_size)), 0)
         pygame.display.flip()
